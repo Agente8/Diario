@@ -58,25 +58,15 @@
 
       <section id="view-consulta" class="view">
         <section class="card">
-          <h2>Consultar por rango</h2>
-          <div class="range-grid">
-            <div>
-              <label for="filter-start-date">Fecha inicio</label>
-              <input id="filter-start-date" type="date" />
-            </div>
-            <div>
-              <label for="filter-end-date">Fecha fin</label>
-              <input id="filter-end-date" type="date" />
-            </div>
-          </div>
-
-          <p id="filter-hint" class="hint">Máximo 20 días entre fecha inicio y fin.</p>
+          <h2>Consultar entradas</h2>
+          <label for="filter-date">Selecciona una fecha</label>
+          <input id="filter-date" type="date" />
           <p id="filter-title" class="hint"></p>
           <ul id="filter-list" class="list"></ul>
         </section>
 
         <section class="card">
-          <h2>Días con entradas dentro del rango</h2>
+          <h2>Días con entradas</h2>
           <ul id="days-list" class="list"></ul>
         </section>
       </section>
