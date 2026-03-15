@@ -129,7 +129,7 @@ function renderToday(entries) {
 function getRangeState() {
   const startKey = filterStartDateInput.value;
   const endKey = filterEndDateInput.value;
-  const maxDays = 20;
+  const maxDays = 60;
 
   if (!startKey || !endKey) {
     return { valid: false, reason: "Selecciona fecha inicio y fecha fin." };
