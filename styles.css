@@ -79,6 +79,12 @@ header {
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
 }
 
+.range-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
 form {
   display: grid;
   gap: 8px;

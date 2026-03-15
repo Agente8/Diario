@@ -14,7 +14,9 @@ const saveBtn = document.getElementById("save-btn");
 const todayLabel = document.getElementById("today");
 const todayList = document.getElementById("today-list");
 
-const filterDateInput = document.getElementById("filter-date");
+const filterStartDateInput = document.getElementById("filter-start-date");
+const filterEndDateInput = document.getElementById("filter-end-date");
+const filterHint = document.getElementById("filter-hint");
 const filterTitle = document.getElementById("filter-title");
 const filterList = document.getElementById("filter-list");
 const daysList = document.getElementById("days-list");
@@ -29,9 +31,12 @@ function formatDateKey(date) {
   return date.toISOString().slice(0, 10);
 }
 
+function parseDateKey(dateKey) {
+  return new Date(`${dateKey}T00:00:00`);
+}
+
 function formatDateDisplay(dateKey) {
-  const date = new Date(`${dateKey}T00:00:00`);
-  return date.toLocaleDateString("es-ES", {
+  return parseDateKey(dateKey).toLocaleDateString("es-ES", {
     weekday: "long",
     day: "2-digit",
     month: "long",
@@ -52,7 +57,7 @@ function saveEntries(entries) {
 }
 
 function addOneMonth(dateKey) {
-  const date = new Date(`${dateKey}T00:00:00`);
+  const date = parseDateKey(dateKey);
   const day = date.getDate();
   date.setMonth(date.getMonth() + 1);
   if (date.getDate() < day) {
@@ -61,14 +66,15 @@ function addOneMonth(dateKey) {
   return formatDateKey(date);
 }
 
-function getTodayEntries(entries) {
-  return entries.filter((entry) => entry.dateKey === todayKey);
+function diffDaysInclusive(startKey, endKey) {
+  const start = parseDateKey(startKey);
+  const end = parseDateKey(endKey);
+  const ms = end.getTime() - start.getTime();
+  return Math.floor(ms / 86400000) + 1;
 }
 
-function getEntriesByDate(entries, dateKey) {
-  return entries
-    .filter((entry) => entry.dateKey === dateKey)
-    .sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+function getTodayEntries(entries) {
+  return entries.filter((entry) => entry.dateKey === todayKey);
 }
 
 function escapeHtml(text) {
@@ -111,35 +117,75 @@ function renderToday(entries) {
   });
 }
 
-function renderConsultation(entries) {
-  const uniqueDates = [...new Set(entries.map((entry) => entry.dateKey))].sort((a, b) => b.localeCompare(a));
+function getRangeState() {
+  const startKey = filterStartDateInput.value;
+  const endKey = filterEndDateInput.value;
+  const maxDays = 20;
 
+  if (!startKey || !endKey) {
+    return { valid: false, reason: "Selecciona fecha inicio y fecha fin." };
+  }
+
+  if (startKey > endKey) {
+    return { valid: false, reason: "La fecha inicio no puede ser mayor que la fecha fin." };
+  }
+
+  const days = diffDaysInclusive(startKey, endKey);
+  if (days > maxDays) {
+    return {
+      valid: false,
+      reason: `El rango seleccionado (${days} días) supera el máximo de ${maxDays} días.`,
+    };
+  }
+
+  return { valid: true, startKey, endKey, days };
+}
+
+function renderConsultation(entries) {
+  const state = getRangeState();
+  filterHint.textContent = "";
+  filterTitle.textContent = "";
+  filterList.innerHTML = "";
   daysList.innerHTML = "";
+
+  if (!state.valid) {
+    filterHint.textContent = state.reason;
+    setEmptyState(filterList, "Ajusta el rango para ver resultados.");
+    setEmptyState(daysList, "Sin fechas para mostrar.");
+    return;
+  }
+
+  const inRangeEntries = entries
+    .filter((entry) => entry.dateKey >= state.startKey && entry.dateKey <= state.endKey)
+    .sort((a, b) => {
+      if (a.dateKey === b.dateKey) {
+        return a.createdAt.localeCompare(b.createdAt);
+      }
+      return a.dateKey.localeCompare(b.dateKey);
+    });
+
+  filterTitle.textContent = `Mostrando del ${formatDateDisplay(state.startKey)} al ${formatDateDisplay(state.endKey)} (${state.days} días).`;
+
+  const uniqueDates = [...new Set(inRangeEntries.map((entry) => entry.dateKey))].sort((a, b) => b.localeCompare(a));
+
   if (!uniqueDates.length) {
-    setEmptyState(daysList, "Todavía no hay días con entradas.");
+    setEmptyState(daysList, "No hay entradas en este rango.");
   } else {
     uniqueDates.forEach((dateKey) => {
       const li = document.createElement("li");
       li.className = "item";
-      li.innerHTML = `<button type="button" class="day-button" data-date="${dateKey}">${formatDateDisplay(dateKey)}</button>`;
+      li.innerHTML = `<strong>${formatDateDisplay(dateKey)}</strong>`;
       daysList.appendChild(li);
     });
   }
 
-  const selectedDate = filterDateInput.value || todayKey;
-  filterDateInput.value = selectedDate;
-  const selectedEntries = getEntriesByDate(entries, selectedDate);
-
-  filterTitle.textContent = `Mostrando: ${formatDateDisplay(selectedDate)}`;
-  filterList.innerHTML = "";
-
-  if (!selectedEntries.length) {
-    setEmptyState(filterList, "No hay entradas en esta fecha.");
+  if (!inRangeEntries.length) {
+    setEmptyState(filterList, "No hay entradas en este rango.");
     return;
   }
 
-  selectedEntries.forEach((entry) => {
-    filterList.appendChild(renderEntry(entry));
+  inRangeEntries.forEach((entry) => {
+    filterList.appendChild(renderEntry(entry, true));
   });
 }
 
@@ -221,18 +267,10 @@ tabs.forEach((tab) => {
   });
 });
 
-daysList.addEventListener("click", (event) => {
-  const button = event.target.closest(".day-button");
-  if (!button) {
-    return;
-  }
-
-  filterDateInput.value = button.dataset.date;
-  renderConsultation(getEntries());
-});
-
-filterDateInput.addEventListener("change", () => {
-  renderConsultation(getEntries());
+[filterStartDateInput, filterEndDateInput].forEach((element) => {
+  element.addEventListener("change", () => {
+    renderConsultation(getEntries());
+  });
 });
 
 entryForm.addEventListener("submit", (event) => {
@@ -277,11 +315,21 @@ entryForm.addEventListener("submit", (event) => {
   renderAll(updated);
 });
 
+function initRangeDefaults() {
+  const endDate = parseDateKey(todayKey);
+  const startDate = new Date(endDate);
+  startDate.setDate(startDate.getDate() - 9);
+
+  filterStartDateInput.value = formatDateKey(startDate);
+  filterEndDateInput.value = todayKey;
+}
+
 function init() {
   todayLabel.textContent = formatDateDisplay(todayKey);
 
+  initRangeDefaults();
+
   const entries = getEntries();
-  filterDateInput.value = todayKey;
   updateFormState(entries);
   renderAll(entries);
   maybeShowStressReminder(entries);

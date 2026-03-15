@@ -4,8 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#4f46e5" />
-    <link rel="manifest" href="manifest.webmanifest" />
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="stylesheet" href="./styles.css" />
     <title>Diario</title>
   </head>
   <body>
@@ -58,15 +58,25 @@
 
       <section id="view-consulta" class="view">
         <section class="card">
-          <h2>Consultar entradas</h2>
-          <label for="filter-date">Selecciona una fecha</label>
-          <input id="filter-date" type="date" />
+          <h2>Consultar por rango</h2>
+          <div class="range-grid">
+            <div>
+              <label for="filter-start-date">Fecha inicio</label>
+              <input id="filter-start-date" type="date" />
+            </div>
+            <div>
+              <label for="filter-end-date">Fecha fin</label>
+              <input id="filter-end-date" type="date" />
+            </div>
+          </div>
+
+          <p id="filter-hint" class="hint">Máximo 20 días entre fecha inicio y fin.</p>
           <p id="filter-title" class="hint"></p>
           <ul id="filter-list" class="list"></ul>
         </section>
 
         <section class="card">
-          <h2>Días con entradas</h2>
+          <h2>Días con entradas dentro del rango</h2>
           <ul id="days-list" class="list"></ul>
         </section>
       </section>
@@ -78,6 +88,6 @@
       <button id="close-dialog">Cerrar</button>
     </dialog>
 
-    <script src="app.js" defer></script>
+    <script src="./app.js" defer></script>
   </body>
 </html>
