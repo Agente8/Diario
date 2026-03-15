@@ -19,13 +19,19 @@
           <p class="subtitle">¿Qué agradeces hoy?</p>
         </div>
 
-        <div class="menu-wrapper">
-          <button id="menu-toggle" class="menu-toggle" type="button" aria-label="Abrir menú" aria-expanded="false">☰</button>
-          <div id="menu-dropdown" class="menu-dropdown" role="menu" hidden>
-            <button id="export-btn" type="button" class="menu-item" role="menuitem">Exportar</button>
-            <button id="import-btn" type="button" class="menu-item" role="menuitem">Importar</button>
+        <div class="top-actions">
+          <button id="reminders-btn" class="alert-btn" type="button" hidden aria-label="Ver avisos pendientes">
+            🔔 <span id="reminders-count">0</span>
+          </button>
+
+          <div class="menu-wrapper">
+            <button id="menu-toggle" class="menu-toggle" type="button" aria-label="Abrir menú" aria-expanded="false">☰</button>
+            <div id="menu-dropdown" class="menu-dropdown" role="menu">
+              <button id="export-btn" type="button" class="menu-item" role="menuitem">Exportar</button>
+              <button id="import-btn" type="button" class="menu-item" role="menuitem">Importar</button>
+            </div>
+            <input id="import-file" type="file" accept="application/json,.json" hidden />
           </div>
-          <input id="import-file" type="file" accept="application/json,.json" hidden />
         </div>
       </header>
 
@@ -94,13 +100,18 @@
           <ul id="days-list" class="list"></ul>
         </section>
       </section>
-    </main>
 
-    <dialog id="stress-dialog">
-      <h3>Recordatorio informativo</h3>
-      <p id="stress-message"></p>
-      <button id="close-dialog">Cerrar</button>
-    </dialog>
+      <section id="view-avisos" class="view">
+        <section class="card">
+          <div class="reminders-head">
+            <h2>Avisos de "Me estresa" pendientes</h2>
+            <button id="back-from-reminders" type="button" class="back-btn">Volver</button>
+          </div>
+          <p class="hint">Aquí verás los eventos de estrés de hace un mes o más.</p>
+          <ul id="reminders-list" class="list"></ul>
+        </section>
+      </section>
+    </main>
 
     <script src="./app.js" defer></script>
   </body>

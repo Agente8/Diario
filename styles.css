@@ -41,6 +41,47 @@ p {
   gap: 12px;
 }
 
+.top-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.alert-btn {
+  width: auto;
+  padding: 8px 10px;
+  border-radius: 12px;
+  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(180deg, #f5b75d, #e5922b);
+}
+
+.reminders-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.back-btn {
+  width: auto;
+  padding: 8px 10px;
+  background: #f0f8f7;
+  color: #2c615e;
+  border: 1px solid #cfe4e2;
+}
+
+.dismiss-reminder {
+  width: auto;
+  padding: 6px 9px;
+  border-radius: 10px;
+  background: #fff4e8;
+  color: #8a4a05;
+  border: 1px solid #f0d3b3;
+}
+
 h1 {
   font-size: 2rem;
   letter-spacing: -0.02em;

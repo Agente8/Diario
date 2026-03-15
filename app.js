@@ -4,6 +4,7 @@ const tabs = Array.from(document.querySelectorAll(".tab"));
 const views = {
   hoy: document.getElementById("view-hoy"),
   consulta: document.getElementById("view-consulta"),
+  avisos: document.getElementById("view-avisos"),
 };
 
 const menuToggle = document.getElementById("menu-toggle");
@@ -11,6 +12,11 @@ const menuDropdown = document.getElementById("menu-dropdown");
 const exportButton = document.getElementById("export-btn");
 const importButton = document.getElementById("import-btn");
 const importFileInput = document.getElementById("import-file");
+
+const remindersButton = document.getElementById("reminders-btn");
+const remindersCount = document.getElementById("reminders-count");
+const remindersList = document.getElementById("reminders-list");
+const backFromReminders = document.getElementById("back-from-reminders");
 
 const entryForm = document.getElementById("entry-form");
 const entryType = document.getElementById("entry-type");
@@ -26,10 +32,6 @@ const filterHint = document.getElementById("filter-hint");
 const filterTitle = document.getElementById("filter-title");
 const filterList = document.getElementById("filter-list");
 const daysList = document.getElementById("days-list");
-
-const stressDialog = document.getElementById("stress-dialog");
-const stressMessage = document.getElementById("stress-message");
-const closeDialogButton = document.getElementById("close-dialog");
 
 const todayKey = formatDateKey(new Date());
 
@@ -81,6 +83,13 @@ function diffDaysInclusive(startKey, endKey) {
 
 function getTodayEntries(entries) {
   return entries.filter((entry) => entry.dateKey === todayKey);
+}
+
+function getPendingStressEntries(entries) {
+  return entries
+    .filter((entry) => entry.type === "stress" && !entry.notifiedAt)
+    .filter((entry) => addOneMonth(entry.dateKey) <= todayKey)
+    .sort((a, b) => a.dateKey.localeCompare(b.dateKey));
 }
 
 function escapeHtml(text) {
@@ -198,9 +207,41 @@ function renderConsultation(entries) {
   });
 }
 
+function renderReminders(entries) {
+  const pending = getPendingStressEntries(entries);
+  remindersList.innerHTML = "";
+
+  if (!pending.length) {
+    setEmptyState(remindersList, "No hay avisos pendientes 🎉");
+    return;
+  }
+
+  pending.forEach((entry) => {
+    const li = document.createElement("li");
+    li.className = "item";
+    li.innerHTML = `
+      <div class="item-head">
+        <span class="tag stress">Me estresa</span>
+        <button class="dismiss-reminder" type="button" data-reminder-id="${entry.id}">No recordar más</button>
+      </div>
+      <p class="entry-date"><strong>${formatDateDisplay(entry.dateKey)}</strong></p>
+      <p>${escapeHtml(entry.text)}</p>
+    `;
+    remindersList.appendChild(li);
+  });
+}
+
+function renderReminderIndicator(entries) {
+  const pendingCount = getPendingStressEntries(entries).length;
+  remindersButton.hidden = pendingCount === 0;
+  remindersCount.textContent = String(pendingCount);
+}
+
 function renderAll(entries) {
   renderToday(entries);
   renderConsultation(entries);
+  renderReminders(entries);
+  renderReminderIndicator(entries);
 }
 
 function updateFormState(entries) {
@@ -234,37 +275,20 @@ function updateFormState(entries) {
   }
 }
 
-function maybeShowStressReminder(entries) {
-  const pending = entries
-    .filter((entry) => entry.type === "stress" && !entry.notifiedAt)
-    .filter((entry) => addOneMonth(entry.dateKey) <= todayKey)
-    .sort((a, b) => a.dateKey.localeCompare(b.dateKey));
-
-  if (!pending.length) {
-    return;
-  }
-
-  const item = pending[0];
-  stressMessage.textContent = `Hace un mes escribiste: "${item.text}"`;
-  stressDialog.showModal();
-
-  const close = () => {
-    stressDialog.close();
-    const updated = getEntries().map((entry) =>
-      entry.id === item.id ? { ...entry, notifiedAt: new Date().toISOString() } : entry,
-    );
-    saveEntries(updated);
-    closeDialogButton.removeEventListener("click", close);
-  };
-
-  closeDialogButton.addEventListener("click", close);
-}
-
 function deleteEntry(entryId) {
   const entries = getEntries();
   const updated = entries.filter((entry) => entry.id !== entryId);
   saveEntries(updated);
   updateFormState(updated);
+  renderAll(updated);
+}
+
+function dismissReminder(entryId) {
+  const entries = getEntries();
+  const updated = entries.map((entry) =>
+    entry.id === entryId ? { ...entry, notifiedAt: new Date().toISOString() } : entry,
+  );
+  saveEntries(updated);
   renderAll(updated);
 }
 
@@ -278,6 +302,26 @@ function setupDeleteHandlers() {
 
       deleteEntry(button.dataset.deleteId);
     });
+  });
+}
+
+function setupReminderHandlers() {
+  remindersButton.addEventListener("click", () => {
+    switchView("avisos");
+    closeMenu();
+  });
+
+  backFromReminders.addEventListener("click", () => {
+    switchView("hoy");
+  });
+
+  remindersList.addEventListener("click", (event) => {
+    const button = event.target.closest(".dismiss-reminder");
+    if (!button) {
+      return;
+    }
+
+    dismissReminder(button.dataset.reminderId);
   });
 }
 
@@ -477,11 +521,11 @@ function init() {
   initRangeDefaults();
   setupDeleteHandlers();
   setupMenu();
+  setupReminderHandlers();
 
   const entries = getEntries();
   updateFormState(entries);
   renderAll(entries);
-  maybeShowStressReminder(entries);
 
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("./sw.js").catch(() => undefined);
