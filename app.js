@@ -91,8 +91,11 @@ function renderEntry(entry, withDate = false) {
   const tagText = entry.type === "gratitude" ? "Agradecimiento" : "Me estresa";
 
   li.innerHTML = `
-    <span class="tag ${tagClass}">${tagText}</span>
-    ${withDate ? `<p><strong>${formatDateDisplay(entry.dateKey)}</strong></p>` : ""}
+    <div class="item-head">
+      <span class="tag ${tagClass}">${tagText}</span>
+      <button class="delete-entry" type="button" data-delete-id="${entry.id}" aria-label="Borrar entrada">Borrar</button>
+    </div>
+    ${withDate ? `<p class="entry-date"><strong>${formatDateDisplay(entry.dateKey)}</strong></p>` : ""}
     <p>${escapeHtml(entry.text)}</p>
   `;
 
@@ -173,7 +176,7 @@ function renderConsultation(entries) {
   } else {
     uniqueDates.forEach((dateKey) => {
       const li = document.createElement("li");
-      li.className = "item";
+      li.className = "item day-chip";
       li.innerHTML = `<strong>${formatDateDisplay(dateKey)}</strong>`;
       daysList.appendChild(li);
     });
@@ -249,6 +252,32 @@ function maybeShowStressReminder(entries) {
   };
 
   closeDialogButton.addEventListener("click", close);
+}
+
+function deleteEntry(entryId) {
+  const entries = getEntries();
+  const exists = entries.some((entry) => entry.id === entryId);
+  if (!exists) {
+    return;
+  }
+
+  const updated = entries.filter((entry) => entry.id !== entryId);
+  saveEntries(updated);
+  updateFormState(updated);
+  renderAll(updated);
+}
+
+function setupDeleteHandlers() {
+  [todayList, filterList].forEach((listElement) => {
+    listElement.addEventListener("click", (event) => {
+      const button = event.target.closest(".delete-entry");
+      if (!button) {
+        return;
+      }
+
+      deleteEntry(button.dataset.deleteId);
+    });
+  });
 }
 
 function switchView(viewName) {
@@ -328,6 +357,7 @@ function init() {
   todayLabel.textContent = formatDateDisplay(todayKey);
 
   initRangeDefaults();
+  setupDeleteHandlers();
 
   const entries = getEntries();
   updateFormState(entries);
