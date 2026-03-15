@@ -76,9 +76,13 @@ h1 {
   border-radius: 12px;
   box-shadow: 0 12px 24px rgba(20, 50, 52, 0.12);
   padding: 6px;
-  display: grid;
+  display: none;
   gap: 4px;
   z-index: 20;
+}
+
+.menu-dropdown.open {
+  display: grid;
 }
 
 .menu-item {

@@ -356,17 +356,18 @@ async function importEntriesFromFile(file) {
 }
 
 function closeMenu() {
-  menuDropdown.hidden = true;
+  menuDropdown.classList.remove("open");
   menuToggle.setAttribute("aria-expanded", "false");
 }
 
 function toggleMenu() {
-  const open = !menuDropdown.hidden;
-  menuDropdown.hidden = open;
-  menuToggle.setAttribute("aria-expanded", String(!open));
+  const willOpen = !menuDropdown.classList.contains("open");
+  menuDropdown.classList.toggle("open", willOpen);
+  menuToggle.setAttribute("aria-expanded", String(willOpen));
 }
 
 function setupMenu() {
+  closeMenu();
   menuToggle.addEventListener("click", toggleMenu);
 
   document.addEventListener("click", (event) => {
