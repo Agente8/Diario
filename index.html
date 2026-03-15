@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#4f46e5" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="stylesheet" href="./styles.css" />
+    <title>Diario</title>
+  </head>
+  <body>
+    <main class="container">
+      <header class="topbar">
+        <div>
+          <h1>Mi Diario</h1>
+          <p class="subtitle">¿Qué agradeces hoy?</p>
+        </div>
+
+        <div class="menu-wrapper">
+          <button id="menu-toggle" class="menu-toggle" type="button" aria-label="Abrir menú" aria-expanded="false">☰</button>
+          <div id="menu-dropdown" class="menu-dropdown" role="menu" hidden>
+            <button id="export-btn" type="button" class="menu-item" role="menuitem">Exportar</button>
+            <button id="import-btn" type="button" class="menu-item" role="menuitem">Importar</button>
+          </div>
+          <input id="import-file" type="file" accept="application/json,.json" hidden />
+        </div>
+      </header>
+
+      <nav class="tabs" aria-label="Secciones">
+        <button class="tab active" id="tab-hoy" data-view="hoy" type="button">Hoy</button>
+        <button class="tab" id="tab-consulta" data-view="consulta" type="button">Consultar</button>
+      </nav>
+
+      <section id="view-hoy" class="view active">
+        <section class="card">
+          <h2>Hoy</h2>
+          <p id="today" class="today"></p>
+        </section>
+
+        <section class="card">
+          <h2>Nueva entrada</h2>
+          <form id="entry-form">
+            <label for="entry-type">Tipo</label>
+            <select id="entry-type" name="entry-type" required>
+              <option value="gratitude">Agradecimiento</option>
+              <option value="stress" disabled>Me estresa</option>
+            </select>
+
+            <label for="entry-text">Texto</label>
+            <textarea
+              id="entry-text"
+              name="entry-text"
+              rows="4"
+              maxlength="500"
+              placeholder="Escribe aquí..."
+              required
+            ></textarea>
+
+            <button id="save-btn" type="submit">Guardar entrada</button>
+            <p id="form-hint" class="hint"></p>
+          </form>
+        </section>
+
+        <section class="card">
+          <h2>Entradas de hoy</h2>
+          <ul id="today-list" class="list"></ul>
+        </section>
+      </section>
+
+      <section id="view-consulta" class="view">
+        <section class="card">
+          <h2>Consultar por rango</h2>
+          <div class="range-grid">
+            <div>
+              <label for="filter-start-date">Fecha inicio</label>
+              <input id="filter-start-date" type="date" />
+            </div>
+            <div>
+              <label for="filter-end-date">Fecha fin</label>
+              <input id="filter-end-date" type="date" />
+            </div>
+          </div>
+
+          <p id="filter-hint" class="hint">Máximo 60 días entre fecha inicio y fin.</p>
+          <p id="filter-title" class="hint"></p>
+          <ul id="filter-list" class="list"></ul>
+        </section>
+
+        <section class="card">
+          <h2>Días con entradas dentro del rango</h2>
+          <ul id="days-list" class="list"></ul>
+        </section>
+      </section>
+    </main>
+
+    <dialog id="stress-dialog">
+      <h3>Recordatorio informativo</h3>
+      <p id="stress-message"></p>
+      <button id="close-dialog">Cerrar</button>
+    </dialog>
+
+    <script src="./app.js" defer></script>
+  </body>
+</html>
