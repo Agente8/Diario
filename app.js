@@ -6,6 +6,12 @@ const views = {
   consulta: document.getElementById("view-consulta"),
 };
 
+const menuToggle = document.getElementById("menu-toggle");
+const menuDropdown = document.getElementById("menu-dropdown");
+const exportButton = document.getElementById("export-btn");
+const importButton = document.getElementById("import-btn");
+const importFileInput = document.getElementById("import-file");
+
 const entryForm = document.getElementById("entry-form");
 const entryType = document.getElementById("entry-type");
 const entryText = document.getElementById("entry-text");
@@ -256,11 +262,6 @@ function maybeShowStressReminder(entries) {
 
 function deleteEntry(entryId) {
   const entries = getEntries();
-  const exists = entries.some((entry) => entry.id === entryId);
-  if (!exists) {
-    return;
-  }
-
   const updated = entries.filter((entry) => entry.id !== entryId);
   saveEntries(updated);
   updateFormState(updated);
@@ -277,6 +278,122 @@ function setupDeleteHandlers() {
 
       deleteEntry(button.dataset.deleteId);
     });
+  });
+}
+
+function normalizeImportedEntry(rawEntry) {
+  if (!rawEntry || typeof rawEntry !== "object") {
+    return null;
+  }
+
+  const type = rawEntry.type === "stress" ? "stress" : rawEntry.type === "gratitude" ? "gratitude" : null;
+  const text = typeof rawEntry.text === "string" ? rawEntry.text.trim() : "";
+  const dateKey = typeof rawEntry.dateKey === "string" ? rawEntry.dateKey : "";
+
+  if (!type || !text || !/^\d{4}-\d{2}-\d{2}$/.test(dateKey)) {
+    return null;
+  }
+
+  const createdAt = typeof rawEntry.createdAt === "string" ? rawEntry.createdAt : `${dateKey}T12:00:00.000Z`;
+  const notifiedAt = typeof rawEntry.notifiedAt === "string" ? rawEntry.notifiedAt : null;
+  const id = typeof rawEntry.id === "string" && rawEntry.id ? rawEntry.id : crypto.randomUUID();
+
+  return { id, type, text, dateKey, createdAt, notifiedAt };
+}
+
+function exportEntries() {
+  const entries = getEntries();
+  const payload = JSON.stringify(entries, null, 2);
+  const blob = new Blob([payload], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `diario-entradas-${todayKey}.json`;
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
+async function importEntriesFromFile(file) {
+  const text = await file.text();
+  let parsed;
+
+  try {
+    parsed = JSON.parse(text);
+  } catch {
+    formHint.textContent = "El archivo JSON no es válido.";
+    return;
+  }
+
+  if (!Array.isArray(parsed)) {
+    formHint.textContent = "El JSON debe ser una lista de entradas.";
+    return;
+  }
+
+  const importedEntries = parsed.map(normalizeImportedEntry).filter(Boolean);
+
+  if (importedEntries.length === 0) {
+    formHint.textContent = "No se encontraron entradas válidas para importar.";
+    return;
+  }
+
+  const existing = getEntries();
+  const map = new Map(existing.map((entry) => [entry.id, entry]));
+  importedEntries.forEach((entry) => {
+    map.set(entry.id, entry);
+  });
+
+  const merged = [...map.values()].sort((a, b) => {
+    if (a.dateKey === b.dateKey) {
+      return a.createdAt.localeCompare(b.createdAt);
+    }
+    return a.dateKey.localeCompare(b.dateKey);
+  });
+
+  saveEntries(merged);
+  updateFormState(merged);
+  renderAll(merged);
+  formHint.textContent = `${importedEntries.length} entrada(s) importada(s).`;
+}
+
+function closeMenu() {
+  menuDropdown.hidden = true;
+  menuToggle.setAttribute("aria-expanded", "false");
+}
+
+function toggleMenu() {
+  const open = !menuDropdown.hidden;
+  menuDropdown.hidden = open;
+  menuToggle.setAttribute("aria-expanded", String(!open));
+}
+
+function setupMenu() {
+  menuToggle.addEventListener("click", toggleMenu);
+
+  document.addEventListener("click", (event) => {
+    if (event.target.closest(".menu-wrapper")) {
+      return;
+    }
+    closeMenu();
+  });
+
+  exportButton.addEventListener("click", () => {
+    exportEntries();
+    closeMenu();
+  });
+
+  importButton.addEventListener("click", () => {
+    importFileInput.click();
+    closeMenu();
+  });
+
+  importFileInput.addEventListener("change", async () => {
+    const [file] = importFileInput.files || [];
+    if (!file) {
+      return;
+    }
+
+    await importEntriesFromFile(file);
+    importFileInput.value = "";
   });
 }
 
@@ -358,6 +475,7 @@ function init() {
 
   initRangeDefaults();
   setupDeleteHandlers();
+  setupMenu();
 
   const entries = getEntries();
   updateFormState(entries);

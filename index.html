@@ -10,9 +10,20 @@
   </head>
   <body>
     <main class="container">
-      <header>
-        <h1>Mi Diario</h1>
-        <p class="subtitle">¿Qué agradeces hoy?</p>
+      <header class="topbar">
+        <div>
+          <h1>Mi Diario</h1>
+          <p class="subtitle">¿Qué agradeces hoy?</p>
+        </div>
+
+        <div class="menu-wrapper">
+          <button id="menu-toggle" class="menu-toggle" type="button" aria-label="Abrir menú" aria-expanded="false">☰</button>
+          <div id="menu-dropdown" class="menu-dropdown" role="menu" hidden>
+            <button id="export-btn" type="button" class="menu-item" role="menuitem">Exportar</button>
+            <button id="import-btn" type="button" class="menu-item" role="menuitem">Importar</button>
+          </div>
+          <input id="import-file" type="file" accept="application/json,.json" hidden />
+        </div>
       </header>
 
       <nav class="tabs" aria-label="Secciones">
