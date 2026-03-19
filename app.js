@@ -23,7 +23,6 @@ const backFromReminders = document.getElementById("back-from-reminders");
 const welcomeDialog = document.getElementById("welcome-dialog");
 const hideWelcomeCheckbox = document.getElementById("hide-welcome");
 const closeWelcomeButton = document.getElementById("close-welcome");
-const secondaryCloseWelcomeButton = document.getElementById("secondary-close-welcome");
 
 const entryForm = document.getElementById("entry-form");
 const entryType = document.getElementById("entry-type");
@@ -474,7 +473,6 @@ function setupMenu() {
 
 function setupWelcomeDialog() {
   closeWelcomeButton.addEventListener("click", closeHelp);
-  secondaryCloseWelcomeButton.addEventListener("click", closeHelp);
 
   welcomeDialog.addEventListener("close", () => {
     setHideWelcome(hideWelcomeCheckbox.checked);
