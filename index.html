@@ -117,13 +117,17 @@
     <dialog id="welcome-dialog" class="welcome-dialog">
       <div class="welcome-body">
         <h2>Bienvenido a Mente Clara</h2>
-        <p id="welcome-text">Enhorabuena por tener un lugar solo para ti donde agradecer, escribir lo que sientes y dar valor tanto a los pequeños detalles como a los grandes logros. <strong>Mente Clara</strong> está pensada para acompañarte cada día con un gesto sencillo: parar un momento, poner en palabras lo que has vivido y mirar tu vida con algo más de calma y perspectiva. Aquí cabe una alegría inesperada, un avance del que te sientes orgulloso, una emoción o un día especialmente bonito. Y también podrás registrar tus momentos de estrés para, al volver a verlos pasado un mes con el aviso de la app, entenderlos mejor, relativizarlos y ver con más claridad cuánto has avanzado. Recuerda que, para poder añadir algo que te estrese, antes tienes que registrar un agradecimiento.</p>
-        <label class="checkbox-row" for="hide-welcome">
-          <input id="hide-welcome" type="checkbox" />
-          <span>no volver a mostrar</span>
-        </label>
-        <div class="welcome-actions">
+        <div class="welcome-top-actions">
+          <label class="checkbox-row" for="hide-welcome">
+            <input id="hide-welcome" type="checkbox" />
+            <span>no volver a mostrar</span>
+          </label>
           <button id="close-welcome" type="button">Entendido</button>
+        </div>
+        <div id="welcome-text" class="welcome-text">
+          <p>Enhorabuena por tener un lugar solo para ti donde agradecer, escribir lo que sientes y dar valor tanto a los pequeños detalles como a los grandes logros. <strong>Mente Clara</strong> está pensada para acompañarte cada día con un gesto sencillo en 21 segundos: parar un momento, poner en palabras lo que has vivido y mirar tu vida con algo más de calma y perspectiva.</p>
+          <p>Aquí cabe una alegría inesperada, un avance del que te sientes orgulloso, una emoción o el propio día.</p>
+          <p>Y también podrás registrar tus momentos de estrés para, al volver a ellos cuando se active la campana, entenderlos mejor, relativizarlos y ver con más claridad cuánto has avanzado.</p>
         </div>
       </div>
     </dialog>
