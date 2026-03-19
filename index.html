@@ -9,7 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link rel="manifest" href="./manifest.webmanifest" />
     <link rel="stylesheet" href="./styles.css" />
-    <title>Diario</title>
+    <title>Mente Clara</title>
   </head>
   <body>
     <main class="container">
@@ -29,6 +29,7 @@
             <div id="menu-dropdown" class="menu-dropdown" role="menu">
               <button id="export-btn" type="button" class="menu-item" role="menuitem">Exportar</button>
               <button id="import-btn" type="button" class="menu-item" role="menuitem">Importar</button>
+              <button id="help-btn" type="button" class="menu-item" role="menuitem">Ayuda</button>
             </div>
             <input id="import-file" type="file" accept="application/json,.json" hidden />
           </div>
@@ -112,6 +113,20 @@
         </section>
       </section>
     </main>
+
+    <dialog id="welcome-dialog" class="welcome-dialog">
+      <div class="welcome-body">
+        <h2>Bienvenido a Mente Clara</h2>
+        <p id="welcome-text">Enhorabuena por tener un lugar solo para ti donde agradecer, escribir lo que sientes y dar valor tanto a los pequeños detalles como a los grandes logros. <strong>Mente Clara</strong> está pensada para acompañarte cada día con un gesto sencillo: parar un momento, poner en palabras lo que has vivido y mirar tu vida con algo más de calma y perspectiva. Aquí cabe una alegría inesperada, un avance del que te sientes orgulloso, una emoción o un día especialmente bonito. Y también podrás registrar tus momentos de estrés para, al volver a verlos pasado un mes con el aviso de la app, entenderlos mejor, relativizarlos y ver con más claridad cuánto has avanzado. Recuerda que, para poder añadir algo que te estrese, antes tienes que registrar un agradecimiento.</p>
+        <label class="checkbox-row" for="hide-welcome">
+          <input id="hide-welcome" type="checkbox" />
+          <span>no volver a mostrar</span>
+        </label>
+        <div class="welcome-actions">
+          <button id="close-welcome" type="button">Entendido</button>
+        </div>
+      </div>
+    </dialog>
 
     <script src="./app.js" defer></script>
   </body>

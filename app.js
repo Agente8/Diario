@@ -1,4 +1,5 @@
 const STORAGE_KEY = "diario.entries.v1";
+const HIDE_WELCOME_KEY = "diario.hideWelcome.v1";
 
 const tabs = Array.from(document.querySelectorAll(".tab"));
 const views = {
@@ -11,12 +12,17 @@ const menuToggle = document.getElementById("menu-toggle");
 const menuDropdown = document.getElementById("menu-dropdown");
 const exportButton = document.getElementById("export-btn");
 const importButton = document.getElementById("import-btn");
+const helpButton = document.getElementById("help-btn");
 const importFileInput = document.getElementById("import-file");
 
 const remindersButton = document.getElementById("reminders-btn");
 const remindersCount = document.getElementById("reminders-count");
 const remindersList = document.getElementById("reminders-list");
 const backFromReminders = document.getElementById("back-from-reminders");
+
+const welcomeDialog = document.getElementById("welcome-dialog");
+const hideWelcomeCheckbox = document.getElementById("hide-welcome");
+const closeWelcomeButton = document.getElementById("close-welcome");
 
 const entryForm = document.getElementById("entry-form");
 const entryType = document.getElementById("entry-type");
@@ -62,6 +68,14 @@ function getEntries() {
 
 function saveEntries(entries) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+}
+
+function shouldHideWelcome() {
+  return localStorage.getItem(HIDE_WELCOME_KEY) === "true";
+}
+
+function setHideWelcome(value) {
+  localStorage.setItem(HIDE_WELCOME_KEY, value ? "true" : "false");
 }
 
 function addOneMonth(dateKey) {
@@ -410,6 +424,16 @@ function toggleMenu() {
   menuToggle.setAttribute("aria-expanded", String(willOpen));
 }
 
+function openHelp() {
+  hideWelcomeCheckbox.checked = shouldHideWelcome();
+  welcomeDialog.showModal();
+}
+
+function closeHelp() {
+  setHideWelcome(hideWelcomeCheckbox.checked);
+  welcomeDialog.close();
+}
+
 function setupMenu() {
   closeMenu();
   menuToggle.addEventListener("click", toggleMenu);
@@ -431,6 +455,11 @@ function setupMenu() {
     closeMenu();
   });
 
+  helpButton.addEventListener("click", () => {
+    openHelp();
+    closeMenu();
+  });
+
   importFileInput.addEventListener("change", async () => {
     const [file] = importFileInput.files || [];
     if (!file) {
@@ -439,6 +468,14 @@ function setupMenu() {
 
     await importEntriesFromFile(file);
     importFileInput.value = "";
+  });
+}
+
+function setupWelcomeDialog() {
+  closeWelcomeButton.addEventListener("click", closeHelp);
+
+  welcomeDialog.addEventListener("close", () => {
+    setHideWelcome(hideWelcomeCheckbox.checked);
   });
 }
 
@@ -522,10 +559,16 @@ function init() {
   setupDeleteHandlers();
   setupMenu();
   setupReminderHandlers();
+  setupWelcomeDialog();
 
   const entries = getEntries();
   updateFormState(entries);
   renderAll(entries);
+
+  if (!shouldHideWelcome()) {
+    hideWelcomeCheckbox.checked = false;
+    welcomeDialog.showModal();
+  }
 
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("./sw.js").catch(() => undefined);

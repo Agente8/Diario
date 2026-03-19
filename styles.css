@@ -302,19 +302,42 @@ button:disabled {
   font-style: italic;
 }
 
-#stress-dialog {
+.welcome-dialog {
   border: 0;
-  border-radius: 16px;
-  max-width: 420px;
-  width: 90%;
-  padding: 16px;
+  border-radius: 22px;
+  max-width: 720px;
+  width: min(92vw, 720px);
+  padding: 0;
+  overflow: hidden;
 }
 
-#stress-dialog::backdrop {
-  background: rgba(17, 24, 39, 0.45);
+.welcome-dialog::backdrop {
+  background: rgba(16, 34, 35, 0.48);
 }
 
-#stress-dialog p {
-  margin: 10px 0 14px;
-  line-height: 1.5;
+.welcome-body {
+  padding: 22px;
+  background: linear-gradient(180deg, #ffffff, #f5fbfa);
+}
+
+.welcome-body p {
+  line-height: 1.7;
+  margin-top: 12px;
+}
+
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.checkbox-row input {
+  width: auto;
+}
+
+.welcome-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 18px;
 }
